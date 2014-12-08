@@ -1,4 +1,4 @@
-# con1988.rb
+# crfb-senado.rb
 
 Um script para auxiliar o projeto [PoliticaColaborativa/ConstituicaoBrasileira](//github.com/PoliticaColaborativa/ConstituicaoBrasileira) a capturar o texto de 1988.
 
