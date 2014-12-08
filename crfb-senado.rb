@@ -27,10 +27,39 @@ require "nokogiri"
 
 class Getter
   @@targets = {
-    :con1988 => "http://www.senado.gov.br/legislacao/const/con1988/CON1988_05.10.1988/art_PATTERN_.shtm"
+    :con1988 => "http://www.senado.gov.br/legislacao/const/con1988/CON1988_05.10.1988/art_PATTERN_.shtm",
+    :cache => "http://www.senado.gov.br/legislacao/const/con1988/CON1988_PATTERN/index.shtm"
   }
   def initialize()
     @c = Curl::Easy.new    
+  end
+
+=begin
+<h4>Emendas Constitucionais</h4>
+<div style="clear:both; width:100%; padding-top: 10px;">
+  <div style="float:left; width:10%; text-align:center;"><a href="../EMC1_31.03.1992/EMC1.shtm">EMC - 1</a></div>
+  <div style="float:left; width:15%; text-align:center;">31.03.1992</div>
+  <div style="float:left; width:72%; text-align:justify;">Dispõe sobre a remuneração dos Deputados Estaduais e dos Vereadores</div>
+</div>
+<div style="clear:both; width:100%; padding-top: 10px;">
+  <div style="float:left; width:10%; text-align:center;"><a href="../EMC2_25.08.1992/EMC2.shtm">EMC - 2</a></div>
+  <div style="float:left; width:15%; text-align:center;">25.08.1992</div>
+  <div style="float:left; width:72%; text-align:justify;">Dispõe sobre o plebiscito previsto no art. 2º do Ato das Disposições Constitucionais Transitórias.</div>
+</div>
+=end
+
+  def cache(date="02.12.2014")
+    @url = @@targets[:cache].gsub! "PATTERN", date
+    lines = css "div#conteudoConst div[style=\"clear:both; width:100%; padding-top: 10px;\"]"
+    str = ""
+    lines.each do |div|
+      children = div.css "div"
+      name = chomp children[0].text
+      date = chomp children[1].text
+      desc = chomp children[2].text
+      puts "#{name}\n#{date}\n#{desc}"
+      puts
+    end
   end
   def con1988(article)
     pattern = article.to_s
@@ -70,6 +99,15 @@ class Getter
     @c.perform
     page = Nokogiri::HTML @c.body_str
     page.css css
+  end
+  def chomp(str)
+    nbsp = Nokogiri::HTML("&nbsp;").text
+    str
+      .gsub(nbsp, " ")
+      .chomp
+      .gsub(/\r/, "")
+      .gsub(/^[ \t\n]*/, "")
+      .gsub(/[ \t\n]*$/, "")
   end
 end
 
@@ -146,6 +184,7 @@ if ARGV.empty?
     else
       # crfb-senado.rb --cache
       puts "cache is a functionality not implemented"  # TODO
+      Getter::new.cache
       exit
     end
   elsif options.amendment
