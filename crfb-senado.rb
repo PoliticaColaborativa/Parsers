@@ -65,15 +65,9 @@ class Getter
     pattern = article.to_s
     @url = @@targets[:con1988].gsub! "PATTERN", pattern
     lines = css "div#conteudoConst p"
-    nbsp = Nokogiri::HTML("&nbsp;").text
     str = ""
     lines.each do |p|
-      text = p.text
-                .gsub(nbsp, " ")
-                .chomp
-                .gsub(/\r/, "")
-                .gsub(/^[ \t\n]*/, "")
-                .gsub(/[ \t\n]*$/, "")
+      text = chomp p.text
       case p["class"]
       when "artigo"
         str += text.gsub(/^(Art. [0-9]*º?)\.?/, '**\1**')
