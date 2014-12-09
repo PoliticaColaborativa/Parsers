@@ -51,13 +51,14 @@ class Getter
   def cache(date="02.12.2014")
     @url = @@targets[:cache].gsub! "PATTERN", date
     lines = css "div#conteudoConst div[style=\"clear:both; width:100%; padding-top: 10px;\"]"
-    str = ""
+    url_prefix = "http://www.senado.gov.br/legislacao/const/con1988"
     lines.each do |div|
       children = div.css "div"
+      url = children[0].child["href"].gsub /^../ , url_prefix
       name = chomp children[0].text
       date = chomp children[1].text
       desc = chomp children[2].text
-      puts "#{name}\n#{date}\n#{desc}"
+      puts "#{name}\n#{date}\n#{desc}\n#{url}"
       puts
     end
   end
@@ -88,7 +89,7 @@ class Getter
     str
   end
   private
-  def css(css)
+  def css(css)  # TODO issue #4 "Tratar exceção de falta de Internet"
     @c.url = @url
     @c.perform
     page = Nokogiri::HTML @c.body_str
