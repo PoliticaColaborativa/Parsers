@@ -168,15 +168,15 @@ optparse = OptionParser.new do |opts|
   end
 end
 
+COMMAND_ERRORS = [
+  OptionParser::InvalidOption,
+  OptionParser::InvalidArgument,
+  OptionParser::MissingArgument
+]
+
 begin
   optparse.parse!
-rescue OptionParser::InvalidOption => msg
-  puts msg
-  exit(-2)
-rescue OptionParser::InvalidArgument => msg
-  puts msg
-  exit(-2)
-rescue OptionParser::MissingArgument => msg
+rescue *COMMAND_ERRORS => msg
   puts msg
   exit(-2)
 end
