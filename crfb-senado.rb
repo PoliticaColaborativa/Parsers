@@ -25,6 +25,11 @@ limitations under the License.
 require "curb"
 require "nokogiri"
 
+CONNECTION_ERRORS = [
+  Curl::Err::HostResolutionError,
+  Curl::Err::ConnectionFailedError
+]
+
 class Getter
   @@targets = {
     :con1988 => "http://www.senado.gov.br/legislacao/const/con1988/CON1988_05.10.1988/art_PATTERN_.shtm",
@@ -89,11 +94,16 @@ class Getter
     str
   end
   private
-  def css(css)  # TODO issue #4 "Tratar exceção de falta de Internet"
-    @c.url = @url
-    @c.perform
-    page = Nokogiri::HTML @c.body_str
-    page.css css
+  def css(css)
+    begin
+      @c.url = @url
+      @c.perform
+      page = Nokogiri::HTML @c.body_str
+      page.css css
+    rescue *CONNECTION_ERRORS => msg
+      puts msg
+      exit(-3)
+    end
   end
   def chomp(str)
     nbsp = Nokogiri::HTML("&nbsp;").text
